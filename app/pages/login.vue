@@ -38,5 +38,4 @@ const login = async () => {
         console.error('Inloggen mislukt:', error)
     }
 }
-
 </script>
