@@ -19,9 +19,10 @@
         </h3>
       </template>
 
-      <div class="bg-red-300" v-for="item in test" :key="item.id">
+      <div class="bg-red-500 w-2xs h-[full]" v-for="item in test" :key="item.id">
         {{ item.name }}
       </div>
+      
 
       <template #footer>
         <div class="flex justify-between items-center">
@@ -37,9 +38,9 @@
     </UCard>
   </div>
 </template>
-
 <script setup lang="js">
 const supabase = useSupabaseClient()
+
 
 const test = ref([])
 
