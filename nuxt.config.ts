@@ -6,13 +6,13 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
 
   css: ['~/assets/css/main.css'],
-  vite: {
-    plugins: [
-      tailwindcss(),
-    ],
-  },
-  modules: ['@nuxtjs/supabase', '@nuxt/ui'],
+
+  modules: [
+    '@nuxtjs/supabase',
+    '@nuxt/ui'
+  ],
+
   supabase: {
-    redirect: false,
+    redirect: false
   }
 })

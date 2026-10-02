@@ -5,9 +5,9 @@
     </h2>
 
     <UCard
-      variant="subtle"
-      class="max-w-md mx-auto border border-gray-200 dark:border-gray-700 shadow-md rounded-xl overflow-hidden"
-      :ui="{
+        variant="subtle"
+        class="max-w-md mx-auto border border-gray-200 dark:border-gray-700 shadow-md rounded-xl overflow-hidden"
+        :ui="{
         header: 'bg-gray-100 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700',
         body: 'px-4 py-5',
         footer: 'bg-gray-100 dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700'
@@ -19,17 +19,9 @@
         </h3>
       </template>
 
-      <div v-if="loading" class="text-gray-500">
-        Items laden...
-      </div>
-      <p v-else-if="error" role="alert" class="text-red-600">
-        Items laden mislukt: {{ error }}
-      </p>
-      <p v-else-if="test.length === 0" class="text-gray-500">
-        Geen items gevonden. De tabel is leeg of Row Level Security filtert de rijen.
-      </p>
-      <div v-else v-for="item in test" :key="item.id" class="bg-blue-300">
-        {{ item.name ?? 'Naam ontbreekt op deze rij' }}
+      <!-- Naam uit Supabase -->
+      <div class="bg-blue-300" v-for="item in test" :key="item.id">
+        {{ item.name }}
       </div>
 
       <template #footer>
@@ -50,29 +42,15 @@
 const supabase = useSupabaseClient()
 
 const test = ref([])
-const loading = ref(true)
-const error = ref('')
 
 async function fetchTest() {
-  loading.value = true
-  error.value = ''
-
-  try {
-    const { data, error: queryError } = await supabase
+  const result = await supabase
       .from('test')
       .select('*')
 
-    if (queryError) {
-      throw new Error(queryError.message)
-    }
+  console.log('RESULT:', result)
 
-    test.value = data ?? []
-  } catch (cause) {
-    console.error('Items laden mislukt:', cause)
-    error.value = cause instanceof Error ? cause.message : 'Onbekende fout'
-  } finally {
-    loading.value = false
-  }
+  test.value = result.data || []
 }
 
 onMounted(fetchTest)
