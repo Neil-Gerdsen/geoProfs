@@ -19,10 +19,18 @@
         </h3>
       </template>
 
-      <div class="bg-red-500 w-2xs h-[full]" v-for="item in test" :key="item.id">
-        {{ item.name }}
+      <div v-if="loading" class="text-gray-500">
+        Items laden...
       </div>
-      
+      <p v-else-if="error" role="alert" class="text-red-600">
+        Items laden mislukt: {{ error }}
+      </p>
+      <p v-else-if="test.length === 0" class="text-gray-500">
+        Geen items gevonden. De tabel is leeg of Row Level Security filtert de rijen.
+      </p>
+      <div v-else v-for="item in test" :key="item.id" class="bg-blue-300">
+        {{ item.name ?? 'Naam ontbreekt op deze rij' }}
+      </div>
 
       <template #footer>
         <div class="flex justify-between items-center">
@@ -41,17 +49,30 @@
 <script setup lang="js">
 const supabase = useSupabaseClient()
 
-
 const test = ref([])
+const loading = ref(true)
+const error = ref('')
 
 async function fetchTest() {
-  const result = await supabase
-    .from('test')
-    .select('*')
+  loading.value = true
+  error.value = ''
 
-  console.log('RESULT:', result)
+  try {
+    const { data, error: queryError } = await supabase
+      .from('test')
+      .select('*')
 
-  test.value = result.data || []
+    if (queryError) {
+      throw new Error(queryError.message)
+    }
+
+    test.value = data ?? []
+  } catch (cause) {
+    console.error('Items laden mislukt:', cause)
+    error.value = cause instanceof Error ? cause.message : 'Onbekende fout'
+  } finally {
+    loading.value = false
+  }
 }
 
 onMounted(fetchTest)
