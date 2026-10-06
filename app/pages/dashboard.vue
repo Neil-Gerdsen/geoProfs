@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 
-const supabase = useSupabaseClient()
 const userSession = useSupabaseUser()
 
 const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefined && val !== '' ? val : fallbackVal)
@@ -106,8 +105,7 @@ const navItems: NavigationMenuItem[] = [
 ]
 
 const handleLogout = async () => {
-  await supabase.auth.signOut()
-  navigateTo('/login')
+  await navigateTo('/logout')
 }
 </script>
 
