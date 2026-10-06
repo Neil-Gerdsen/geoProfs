@@ -7,7 +7,10 @@ const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefi
 
 // 1. Data ophalen volgens jouw database-schema
 const { data } = await useAsyncData('dashboard-data', async () => {
-  const userId = userSession.value?.id
+  const userId = userSession.value?.sub
+  if (!userId) {
+    return { verlof: null, role: null }
+  }
 
   const [verlofRes, roleLinkRes] = await Promise.all([
     // Haal verlof op uit verlof_test
