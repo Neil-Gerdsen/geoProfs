@@ -23,6 +23,7 @@
       <div class="bg-blue-300" v-for="item in test" :key="item.id">
         {{ item.name }}
       </div>
+      <!-- Rollen uit /api/roles/all -->
 
       <template #footer>
         <div class="flex justify-between items-center">
@@ -43,6 +44,7 @@ const supabase = useSupabaseClient()
 
 const test = ref([])
 
+
 async function fetchTest() {
   const result = await supabase
       .from('test')
@@ -53,5 +55,8 @@ async function fetchTest() {
   test.value = result.data || []
 }
 
-onMounted(fetchTest)
+onMounted(() => {
+  fetchTest()
+  fetchRoles()
+})
 </script>
