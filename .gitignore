@@ -22,3 +22,8 @@ logs
 .env
 .env.*
 !.env.example
+
+# claude
+.claude/
+CLAUDE.md
+.mcp.json
