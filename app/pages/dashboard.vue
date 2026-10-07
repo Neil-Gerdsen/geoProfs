@@ -6,7 +6,7 @@ const userSession = useSupabaseUser()
 
 const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefined && val !== '' ? val : fallbackVal)
 
-// 1. Data ophalen volgens jouw database-schema
+// 1. Data ophalen volgens database-schema
 const { data } = await useAsyncData('dashboard-data', async () => {
   const userId = userSession.value?.sub
   if (!userId) {
@@ -146,7 +146,7 @@ const handleLogout = async () => {
     <!-- Main Content -->
     <main class="flex-1 bg-white text-neutral-900 overflow-y-auto p-8 lg:p-10 space-y-6">
       <header>
-        <h1 class="text-2xl font-bold">Goedemorgen {{ userName.split(' ')[0] }}</h1>
+        <h1 class="text-2xl font-bold">Hallo {{ userName.split(' ')[0] }}!</h1>
         <p class="text-xs text-neutral-500 mt-0.5">Hier is je actuele verlof-overzicht</p>
       </header>
 
