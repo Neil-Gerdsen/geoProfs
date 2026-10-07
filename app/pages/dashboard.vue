@@ -75,7 +75,7 @@ const userInitials = computed(() => {
 })
 
 // Verlof data uit verlof_test
-const totalBudgetHours = 200 // Standaard jaartotaal
+const totalBudgetHours = 250 // Standaard jaartotaal
 const remainingHours = computed(() => {
   const uren = data.value?.verlof?.verlof_uren
   return uren != null ? Number(uren) : null
