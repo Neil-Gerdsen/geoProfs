@@ -57,6 +57,5 @@ async function fetchTest() {
 
 onMounted(() => {
   fetchTest()
-  fetchRoles()
 })
 </script>
