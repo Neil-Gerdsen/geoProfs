@@ -48,6 +48,12 @@ onMounted(fetchUserRoleLinks)
 // 2. Gegevens verwerken
 // Verlof data uit verlof_test
 const totalBudgetHours = 250 // Standaard jaartotaal
+const hoursPerDay = 8 // Standaard werkdag
+
+// Uren omzetten naar werkdagen (afgerond op halve dagen)
+const toDays = (hours: number) => Math.round((hours / hoursPerDay) * 2) / 2
+const formatDays = (hours: number | null) => hours != null ? `${toDays(hours)} dagen` : '?'
+
 const remainingHours = computed(() => {
   const uren = data.value?.verlof?.verlof_uren
   return uren != null ? Number(uren) : null
@@ -71,9 +77,9 @@ const remainingColor = computed(() => {
 
 // Stat cards bovenin
 const stats = computed(() => [
-  { value: remainingHours.value != null ? `${remainingHours.value} uur` : '?', label: 'Verlof resterend' },
-  { value: remainingHours.value != null ? `${usedHours.value} uur` : '?', label: 'Verlof opgenomen' },
-  { value: '0 uur', label: 'Ziekgemeld' },
+  { value: formatDays(remainingHours.value), label: 'Verlof resterend' },
+  { value: formatDays(remainingHours.value != null ? usedHours.value : null), label: 'Verlof opgenomen' },
+  { value: '0 dagen', label: 'Ziekgemeld' },
   { value: '0', label: 'Aanvragen lopend' }
 ])
 </script>
@@ -100,7 +106,7 @@ const stats = computed(() => [
         <template #header>
           <div class="flex justify-between items-center">
             <span class="text-sm font-semibold">Verlofsaldo overzicht</span>
-            <span class="text-xs text-neutral-400">{{ totalBudgetHours }} uur budget</span>
+            <span class="text-xs text-neutral-400">{{ formatDays(totalBudgetHours) }} budget</span>
           </div>
         </template>
 
@@ -109,7 +115,7 @@ const stats = computed(() => [
           <div class="flex justify-between text-xs">
             <span>Gewoon verlof</span>
             <span class="text-neutral-400">
-              {{ remainingHours ?? '?' }} / {{ totalBudgetHours }} uur
+              {{ remainingHours != null ? toDays(remainingHours) : '?' }} / {{ toDays(totalBudgetHours) }} dagen
             </span>
           </div>
           <UProgress
@@ -119,7 +125,7 @@ const stats = computed(() => [
               size="md"
           />
           <p class="text-[11px] text-neutral-400">
-            {{ remainingHours != null ? `${remainingHours} uur beschikbaar` : '? uur beschikbaar' }}
+            {{ formatDays(remainingHours) }} beschikbaar
           </p>
         </div>
 
@@ -127,7 +133,7 @@ const stats = computed(() => [
         <div class="space-y-2 pt-4 border-t border-neutral-900">
           <div class="flex justify-between text-xs">
             <span>Ziekmeldingen</span>
-            <span class="text-neutral-400">0 uur</span>
+            <span class="text-neutral-400">0 dagen</span>
           </div>
           <UProgress :model-value="0" :max="40" color="error" size="md" />
         </div>
