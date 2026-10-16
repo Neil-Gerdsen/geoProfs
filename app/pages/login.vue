@@ -22,7 +22,7 @@
 
           <UAlert
             v-if="error"
-            color="red"
+            color?="red"
             title="Inloggen mislukt"
             :description="error"
           />
@@ -73,7 +73,7 @@
           <UButton
             type="submit"
             block
-            color="green"
+            color?="green"
             :loading="loading"
           >
             Inloggen

@@ -7,9 +7,9 @@ const navItems: NavigationMenuItem[][] = [
   [
     { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
     { label: 'Verlof aanvragen', icon: 'i-lucide-calendar-plus', to: '/verlof-aanvragen' },
-    { label: 'Mijn aanvragen', icon: 'i-lucide-file-text' },
-    { label: 'Ziekmelden', icon: 'i-lucide-heart-pulse' },
-    { label: 'Aanwezigheid', icon: 'i-lucide-users' }
+    { label: 'Mijn aanvragen', icon: 'i-lucide-file-text', to: '/mijn-aanvragen' },
+    { label: 'Ziekmelden', icon: 'i-lucide-heart-pulse', to: '/ziekmelden' },
+    { label: 'Aanwezigheid', icon: 'i-lucide-users', to: '/aanwezigheid' },
   ],
   [
     { label: 'Manager', type: 'label' },
