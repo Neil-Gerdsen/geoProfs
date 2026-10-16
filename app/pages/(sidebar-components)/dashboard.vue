@@ -61,6 +61,14 @@ const usedHours = computed(() => {
   return 0
 })
 
+// Kleur van de verlofbalk op basis van het resterende percentage
+const remainingColor = computed(() => {
+  const percentage = ((remainingHours.value ?? 0) / totalBudgetHours) * 100
+  if (percentage > 66) return 'success'
+  if (percentage >= 33) return 'warning'
+  return 'error'
+})
+
 // Stat cards bovenin
 const stats = computed(() => [
   { value: remainingHours.value != null ? `${remainingHours.value} uur` : '?', label: 'Verlof resterend' },
@@ -101,13 +109,13 @@ const stats = computed(() => [
           <div class="flex justify-between text-xs">
             <span>Gewoon verlof</span>
             <span class="text-neutral-400">
-              {{ usedHours }} / {{ totalBudgetHours }} uur
+              {{ remainingHours ?? '?' }} / {{ totalBudgetHours }} uur
             </span>
           </div>
           <UProgress
-              :model-value="usedHours"
+              :model-value="remainingHours ?? 0"
               :max="totalBudgetHours"
-              color="success"
+              :color="remainingColor"
               size="md"
           />
           <p class="text-[11px] text-neutral-400">
