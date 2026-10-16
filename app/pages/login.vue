@@ -112,7 +112,7 @@ const login = async () => {
     })
 
     // Alleen hier komen als de login succesvol was
-    await navigateTo('/')
+    await navigateTo('/dashboard')
   } catch (err: any) {
     error.value =
       err?.data?.statusMessage ||

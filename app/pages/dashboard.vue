@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
+
 const supabase = useSupabaseClient()
 const userSession = useSupabaseUser()
 
 const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefined && val !== '' ? val : fallbackVal)
 
-// 1. Data ophalen volgens jouw database-schema
+// 1. Data ophalen volgens database-schema
 const { data } = await useAsyncData('dashboard-data', async () => {
   const userId = userSession.value?.sub
   if (!userId) {
@@ -74,7 +75,7 @@ const userInitials = computed(() => {
 })
 
 // Verlof data uit verlof_test
-const totalBudgetHours = 200 // Standaard jaartotaal
+const totalBudgetHours = 250 // Standaard jaartotaal
 const remainingHours = computed(() => {
   const uren = data.value?.verlof?.verlof_uren
   return uren != null ? Number(uren) : null
@@ -96,12 +97,34 @@ const stats = computed(() => [
   { value: '0', label: 'Aanvragen lopend' }
 ])
 
-const navItems: NavigationMenuItem[] = [
-  { label: 'Dashboard', active: true, icon: 'i-lucide-layout-dashboard' },
-  { label: 'Verlof aanvragen', icon: 'i-lucide-calendar-plus' },
-  { label: 'Mijn aanvragen', icon: 'i-lucide-file-text' },
-  { label: 'Ziekmelden', icon: 'i-lucide-heart-pulse' },
-  { label: 'Aanwezigheid', icon: 'i-lucide-users' }
+const navItems: NavigationMenuItem[][] = [
+  [
+    { label: 'Dashboard', active: true, icon: 'i-lucide-layout-dashboard' },
+    { label: 'Verlof aanvragen', icon: 'i-lucide-calendar-plus' },
+    { label: 'Mijn aanvragen', icon: 'i-lucide-file-text' },
+    { label: 'Ziekmelden', icon: 'i-lucide-heart-pulse' },
+    { label: 'Aanwezigheid', icon: 'i-lucide-users' }
+  ],
+  [
+    { label: 'Manager', type: 'label' },
+    { label: 'Team dashboard', icon: 'i-lucide-layout-grid' },
+    { label: 'Team aanvragen', icon: 'i-lucide-inbox' },
+    { label: 'Planning', icon: 'i-lucide-calendar-range' },
+    { label: 'Notificaties', icon: 'i-lucide-bell' }
+  ],
+  [
+    { label: 'Office manager', type: 'label' },
+    { label: 'Dashboard', icon: 'i-lucide-layout-dashboard' },
+    { label: 'Verlofaanvragen', icon: 'i-lucide-calendar-check' },
+    { label: 'Gebruikersbeheer', icon: 'i-lucide-user-cog' },
+    { label: 'Manager vervangen', icon: 'i-lucide-user-round-cog' },
+    { label: 'Export', icon: 'i-lucide-download' }
+  ],
+  [
+    { label: 'Admin', type: 'label' },
+    { label: 'Teams', icon: 'i-lucide-users-round' },
+    { label: 'Office managers', icon: 'i-lucide-briefcase' }
+  ]
 ]
 
 const handleLogout = async () => {
@@ -113,7 +136,7 @@ const handleLogout = async () => {
   <div class="flex h-screen w-screen overflow-hidden bg-black text-white font-sans">
     <!-- Sidebar -->
     <aside class="w-64 bg-black border-r border-neutral-900 flex flex-col justify-between shrink-0 p-4">
-      <div class="space-y-6">
+      <div class="space-y-6 min-h-0 overflow-y-auto">
         <div class="flex items-center gap-3 px-2">
           <div class="size-8 rounded-xl bg-white text-black font-black grid place-content-center">G</div>
           <span class="font-mono font-bold text-lg">Geoprofs</span>
@@ -145,7 +168,7 @@ const handleLogout = async () => {
     <!-- Main Content -->
     <main class="flex-1 bg-white text-neutral-900 overflow-y-auto p-8 lg:p-10 space-y-6">
       <header>
-        <h1 class="text-2xl font-bold">Goedemorgen {{ userName.split(' ')[0] }}</h1>
+        <h1 class="text-2xl font-bold">Hallo {{ userName.split(' ')[0] }}!</h1>
         <p class="text-xs text-neutral-500 mt-0.5">Hier is je actuele verlof-overzicht</p>
       </header>
 
