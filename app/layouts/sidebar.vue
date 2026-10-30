@@ -18,7 +18,6 @@ const navGroups: { navitems: NavigationMenuItem[] }[] = [
   {
     roles: ['Manager'],
     items: [
-      { label: 'Manager', type: 'label' },
       { label: 'Team dashboard', icon: 'i-lucide-layout-grid' },
       { label: 'Team aanvragen', icon: 'i-lucide-inbox' },
       { label: 'Planning', icon: 'i-lucide-calendar-range' },
@@ -28,7 +27,6 @@ const navGroups: { navitems: NavigationMenuItem[] }[] = [
   {
     roles: ['Office Manager'],
     items: [
-      { label: 'Office manager', type: 'label' },
       { label: 'Dashboard', icon: 'i-lucide-layout-dashboard' },
       { label: 'Verlofaanvragen', icon: 'i-lucide-calendar-check' },
       { label: 'Gebruikersbeheer', icon: 'i-lucide-user-cog' },
@@ -39,7 +37,6 @@ const navGroups: { navitems: NavigationMenuItem[] }[] = [
   {
     roles: ['Admin'],
     items: [
-      { label: 'Admin', type: 'label' },
       { label: 'Teams', icon: 'i-lucide-users-round' },
       { label: 'Office managers', icon: 'i-lucide-briefcase' }
     ]
