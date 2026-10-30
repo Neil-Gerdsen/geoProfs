@@ -4,7 +4,7 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 const { userName, userRole, userInitials } = await useCurrentUser()
 
 // Welke rol per groep toegang heeft (moet overeenkomen met roles.name in de database)
-const navItems: NavigationMenuItem[][] = [
+const navGroups: { navitems: NavigationMenuItem[] }[] = [
   {
     roles: ['Medewerker'],
     items: [
@@ -45,6 +45,13 @@ const navItems: NavigationMenuItem[][] = [
     ]
   }
 ]
+
+// Alleen groepen van de eigen rol tonen
+const navItems = computed<NavigationMenuItem[][]>(() =>
+    navGroups
+        .filter(({ roles }) => roles.includes(userRole.value))
+        .map(({ items }) => items)
+)
 
 const handleLogout = async () => {
   await navigateTo('/logout')
