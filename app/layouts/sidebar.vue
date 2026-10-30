@@ -18,27 +18,28 @@ const navGroups: { navitems: NavigationMenuItem[] }[] = [
   {
     roles: ['Manager'],
     items: [
-      { label: 'Team dashboard', icon: 'i-lucide-layout-grid' },
-      { label: 'Team aanvragen', icon: 'i-lucide-inbox' },
-      { label: 'Planning', icon: 'i-lucide-calendar-range' },
-      { label: 'Notificaties', icon: 'i-lucide-bell' }
+      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
+      { label: 'Team dashboard', icon: 'i-lucide-layout-grid', to: '/team-dashboard' },
+      { label: 'Verlofaanvragen', icon: 'i-lucide-inbox', to: '/verlof-inbox' },
+      { label: 'Planning', icon: 'i-lucide-calendar-range', to: '/planning' },
+      { label: 'Notificaties', icon: 'i-lucide-bell', to: '/notificaties' }
     ]
   },
   {
     roles: ['Office Manager'],
     items: [
-      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard' },
-      { label: 'Verlofaanvragen', icon: 'i-lucide-calendar-check' },
-      { label: 'Gebruikersbeheer', icon: 'i-lucide-user-cog' },
-      { label: 'Manager vervangen', icon: 'i-lucide-user-round-cog' },
-      { label: 'Export', icon: 'i-lucide-download' }
+      { label: 'Office dashboard', icon: 'i-lucide-layout-grid', to: '/office-dashboard'},
+      { label: 'Verlofaanvragen', icon: 'i-lucide-inbox', to: '/verlof-overzicht' },
+      { label: 'Gebruikersbeheer', icon: 'i-lucide-user-cog', to: '/gebruikersbeheer' },
+      { label: 'Manager vervangen', icon: 'i-lucide-user-round-cog', to: '/manager-vervangen' },
+      { label: 'Export', icon: 'i-lucide-download', to: '/export' }
     ]
   },
   {
     roles: ['Admin'],
     items: [
-      { label: 'Teams', icon: 'i-lucide-users-round' },
-      { label: 'Office managers', icon: 'i-lucide-briefcase' }
+      { label: 'Teams', icon: 'i-lucide-users-round', to: '/teams' },
+      { label: 'Office managers', icon: 'i-lucide-briefcase', to: '/office-managers' }
     ]
   }
 ]
