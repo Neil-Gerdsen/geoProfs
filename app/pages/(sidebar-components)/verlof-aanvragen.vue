@@ -25,27 +25,7 @@ async function opslaan() {
   state.start_datum = ''
   state.eind_datum = ''
   state.reden = ''
-  await refresh()
 }
-
-const {data: aanvragen, refresh} = await useAsyncData('verlofaanvragen', async () => {
-  const {data, error} = await supabase
-    .from('verlofaanvragen')
-    .select('*')
-    .order('aangevraagd_op', { ascending: false })
-  if (error) throw error
-  return data
-})
-
-const columns = [
-  { accessorKey: 'id', header: 'Nr' },
-  { accessorKey: 'start_datum', header: 'Van' },
-  { accessorKey: 'eind_datum', header: 'Tot en met' },
-  { accessorKey: 'reden', header: 'Reden' },
-  { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'aangevraagd_op', header: 'Aangevraagd op' }
-
-]
   
 </script>
 
@@ -69,6 +49,4 @@ const columns = [
 
     <UButton type="submit" color="primary">Opslaan</UButton>
   </UForm>
-
-  <UTable :data="aanvragen ?? []" :columns="columns" class="mt-8" />
 </template>
