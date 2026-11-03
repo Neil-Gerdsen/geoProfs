@@ -11,7 +11,7 @@ const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefi
 const { data } = await useAsyncData('dashboard-data', async () => {
   const userId = userSession.value?.sub
   if (!userId) {
-    return { verlof: null }
+    return { verlof: null, aankomend: [] }
   }
 
   // Haal verlof op uit verlof_test
@@ -21,8 +21,18 @@ const { data } = await useAsyncData('dashboard-data', async () => {
       .eq('id', userId)
       .maybeSingle()
 
+  // 3 eerstvolgende aanvragen die nog niet afgelopen zijn (lokale datum, YYYY-MM-DD)
+  const vandaag = new Date().toLocaleDateString('sv-SE')
+  const aanvragenRes = await supabase
+      .from('verlofaanvragen')
+      .select('id, start_datum, eind_datum, reden, status, aangevraagd_op')
+      .gte('eind_datum', vandaag)
+      .order('start_datum', { ascending: true })
+      .limit(3)
+
   return {
-    verlof: verlofRes.data
+    verlof: verlofRes.data,
+    aankomend: aanvragenRes.data ?? []
   }
 }, { watch: [userSession] })
 
@@ -82,6 +92,22 @@ const stats = computed(() => [
   { value: '0 dagen', label: 'Ziekgemeld' },
   { value: '0', label: 'Aanvragen lopend' }
 ])
+
+const formatDatum = (d: string) =>
+  new Date(`${d}T00:00`).toLocaleDateString('nl-NL', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+
+const formatMoment = (d: string) =>
+  new Date(d).toLocaleString('nl-NL', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
 </script>
 
 <template>
@@ -100,9 +126,19 @@ const stats = computed(() => [
     </div>
 
     <!-- Bottom Panels -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-      <!-- Verlofsaldo Card -->
-      <UCard class="bg-black text-white rounded-2xl border-none space-y-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Verlofsaldo Card (rekt mee tot de hoogte van de aanvragen-kolom) -->
+      <section class="flex flex-col gap-3 min-w-0">
+      <!-- Onzichtbare kopregel met dezelfde hoogte als 'Aankomende aanvragen', zodat de kaarten gelijk beginnen -->
+      <div class="hidden lg:flex justify-between items-center invisible" aria-hidden="true">
+        <h2 class="text-sm font-semibold">&nbsp;</h2>
+        <UButton label="&nbsp;" variant="link" color="neutral" size="xs" tabindex="-1" />
+      </div>
+
+      <UCard
+          class="bg-black text-white rounded-2xl border-none flex-1 flex flex-col"
+          :ui="{ header: 'px-6 py-3 sm:px-6', body: 'px-6 py-4 sm:px-6 sm:py-4 flex-1 grid grid-rows-2' }"
+      >
         <template #header>
           <div class="flex justify-between items-center">
             <span class="text-sm font-semibold">Verlofsaldo overzicht</span>
@@ -111,7 +147,7 @@ const stats = computed(() => [
         </template>
 
         <!-- Gewoon verlof -->
-        <div class="space-y-2">
+        <div class="flex flex-col justify-center gap-2 pb-3">
           <div class="flex justify-between text-xs">
             <span>Gewoon verlof</span>
             <span class="text-neutral-400">
@@ -130,28 +166,47 @@ const stats = computed(() => [
         </div>
 
         <!-- Ziekmeldingen -->
-        <div class="space-y-2 pt-4 border-t border-neutral-900">
+        <div class="flex flex-col justify-center gap-2 pt-3 border-t border-neutral-900">
           <div class="flex justify-between text-xs">
             <span>Ziekmeldingen</span>
             <span class="text-neutral-400">0 dagen</span>
           </div>
           <UProgress :model-value="0" :max="40" color="error" size="md" />
+          <p class="text-[11px] text-neutral-400">
+            0 dagen ziekgemeld
+          </p>
         </div>
       </UCard>
+      </section>
 
-      <!-- Recente Aanvragen Card -->
-      <UCard class="bg-black text-white rounded-2xl border-none">
-        <template #header>
-          <div class="flex justify-between items-center">
-            <span class="text-sm font-semibold">Recente aanvragen</span>
-            <UButton label="Bekijk alles" variant="link" color="neutral" size="xs" class="text-neutral-400" />
-          </div>
-        </template>
-
-        <div class="py-10 text-center text-xs text-neutral-500">
-          Nog geen verlofaanvragen ingediend.
+      <!-- Aankomende aanvragen (zelfde layout als Mijn aanvragen) -->
+      <section class="space-y-3 min-w-0">
+        <div class="flex justify-between items-center">
+          <h2 class="text-sm font-semibold">Aankomende aanvragen</h2>
+          <UButton label="Bekijk alles" to="/mijn-aanvragen" variant="link" color="neutral" size="xs" class="text-neutral-500" />
         </div>
-      </UCard>
+
+        <div class="space-y-3">
+
+          <UCard v-for="aanvraag in data?.aankomend ?? []" :key="aanvraag.id" class="bg-black text-white rounded-2xl border-none"
+            :ui="{ body: 'px-6 py-4 sm:px-6 sm:py-4' }">
+            <div class="grid grid-cols-[2fr_1.5fr_1fr_2fr] gap-4 items-center text-xs">
+              <span>
+                {{ formatDatum(aanvraag.start_datum) }} t/m {{ formatDatum(aanvraag.eind_datum) }}
+              </span>
+              <span class="truncate" :title="aanvraag.reden">{{ aanvraag.reden }}</span>
+              <span>{{ aanvraag.status }}</span>
+              <span>{{ formatMoment(aanvraag.aangevraagd_op) }}</span>
+            </div>
+          </UCard>
+
+          <UCard v-if="!data?.aankomend?.length" class="bg-black text-white rounded-2xl border-none">
+            <p class="py-6 text-center text-xs text-neutral-500">
+              Geen aankomende verlofaanvragen.
+            </p>
+          </UCard>
+        </div>
+      </section>
     </div>
 
     <!-- Gebruikers en hun rol (user_link -> roles) -->
