@@ -3,36 +3,45 @@ import type { NavigationMenuItem } from '@nuxt/ui'
 
 const { userName, userRole, userInitials } = await useCurrentUser()
 
-const navItems: NavigationMenuItem[][] = [
-  [
-    { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
-    { label: 'Verlof aanvragen', icon: 'i-lucide-calendar-plus', to: '/verlof-aanvragen' },
-    { label: 'Mijn aanvragen', icon: 'i-lucide-file-text', to: '/mijn-aanvragen' },
-    { label: 'Mijn team', icon: 'i-lucide-users' },
-    { label: 'Mijn profiel', icon: 'i-lucide-user' },
-    { label: 'Ziekmelden', icon: 'i-lucide-heart-pulse' },
-    { label: 'Aanwezigheid', icon: 'i-lucide-users' }
-  ],
-  [
-    { label: 'Manager', type: 'label' },
-    { label: 'Team dashboard', icon: 'i-lucide-layout-grid' },
-    { label: 'Team aanvragen', icon: 'i-lucide-inbox' },
-    { label: 'Planning', icon: 'i-lucide-calendar-range' },
-    { label: 'Notificaties', icon: 'i-lucide-bell' }
-  ],
-  [
-    { label: 'Office manager', type: 'label' },
-    { label: 'Dashboard', icon: 'i-lucide-layout-dashboard' },
-    { label: 'Verlofaanvragen', icon: 'i-lucide-calendar-check' },
-    { label: 'Gebruikersbeheer', icon: 'i-lucide-user-cog' },
-    { label: 'Manager vervangen', icon: 'i-lucide-user-round-cog' },
-    { label: 'Export', icon: 'i-lucide-download' }
-  ],
-  [
-    { label: 'Admin', type: 'label' },
-    { label: 'Teams', icon: 'i-lucide-users-round' },
-    { label: 'Office managers', icon: 'i-lucide-briefcase' }
-  ]
+// Welke rol per groep toegang heeft (moet overeenkomen met roles.name in de database)
+const navGroups: { navitems: NavigationMenuItem[] }[] = [
+  {
+    roles: ['Medewerker'],
+    items: [
+      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
+      { label: 'Verlof aanvragen', icon: 'i-lucide-calendar-plus', to: '/verlof-aanvragen' },
+      { label: 'Mijn aanvragen', icon: 'i-lucide-file-text', to: '/mijn-aanvragen' },
+      { label: 'Ziekmelden', icon: 'i-lucide-heart-pulse', to: '/ziekmelden' },
+      { label: 'Aanwezigheid', icon: 'i-lucide-users', to: '/aanwezigheid' },
+    ]
+  },
+  {
+    roles: ['Manager'],
+    items: [
+      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
+      { label: 'Team dashboard', icon: 'i-lucide-layout-grid', to: '/team-dashboard' },
+      { label: 'Verlofaanvragen', icon: 'i-lucide-inbox', to: '/verlof-inbox' },
+      { label: 'Planning', icon: 'i-lucide-calendar-range', to: '/planning' },
+      { label: 'Notificaties', icon: 'i-lucide-bell', to: '/notificaties' }
+    ]
+  },
+  {
+    roles: ['Office Manager'],
+    items: [
+      { label: 'Office dashboard', icon: 'i-lucide-layout-grid', to: '/office-dashboard'},
+      { label: 'Verlofaanvragen', icon: 'i-lucide-inbox', to: '/verlof-overzicht' },
+      { label: 'Gebruikersbeheer', icon: 'i-lucide-user-cog', to: '/gebruikersbeheer' },
+      { label: 'Manager vervangen', icon: 'i-lucide-user-round-cog', to: '/manager-vervangen' },
+      { label: 'Export', icon: 'i-lucide-download', to: '/export' }
+    ]
+  },
+  {
+    roles: ['Admin'],
+    items: [
+      { label: 'Teams', icon: 'i-lucide-users-round', to: '/teams' },
+      { label: 'Office managers', icon: 'i-lucide-briefcase', to: '/office-managers' }
+    ]
+  }
 ]
 
 // Alleen groepen van de eigen rol tonen
