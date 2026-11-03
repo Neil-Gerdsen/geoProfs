@@ -35,6 +35,13 @@ const navItems: NavigationMenuItem[][] = [
   ]
 ]
 
+// Alleen groepen van de eigen rol tonen
+const navItems = computed<NavigationMenuItem[][]>(() =>
+    navGroups
+        .filter(({ roles }) => roles.includes(userRole.value))
+        .map(({ items }) => items)
+)
+
 const handleLogout = async () => {
   await navigateTo('/logout')
 }

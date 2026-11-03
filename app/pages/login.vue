@@ -22,7 +22,7 @@
 
           <UAlert
             v-if="error"
-            color="red"
+            color?="red"
             title="Inloggen mislukt"
             :description="error"
           />
@@ -73,7 +73,7 @@
           <UButton
             type="submit"
             block
-            color="green"
+            color?="green"
             :loading="loading"
           >
             Inloggen
@@ -98,6 +98,16 @@ const email = ref('')
 const password = ref('')
 const error = ref('')
 const loading = ref(false)
+// const supabase = useSupabaseClient()
+//
+// // Startpagina per rol (moet overeenkomen met roles.name in de database)
+// const homeRoutes: Record<string, string> = {
+//   'Medewerker': '/dashboard',
+//   'Manager': '/dashboard',
+//   'Office Manager': '/dashboard',
+//   'Admin': '/teams'
+// }
+
 const login = async () => {
   error.value = ''
   loading.value = true
@@ -113,6 +123,15 @@ const login = async () => {
 
     // Alleen hier komen als de login succesvol was
     await navigateTo('/dashboard')
+    // const { data: { user } } = await supabase.auth.getUser()
+    // const { data } = await supabase
+    //     .from('user_link')
+    //     .select('roles(name)')
+    //     .eq('user_id', user?.id ?? '')
+    //     .maybeSingle()
+    //
+    // const role = (data?.roles as any)?.name ?? 'Medewerker'
+    // await navigateTo(homeRoutes[role] ?? '/dashboard')
   } catch (err: any) {
     error.value =
       err?.data?.statusMessage ||
