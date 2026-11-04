@@ -11,7 +11,7 @@ const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefi
 const { data } = await useAsyncData('dashboard-data', async () => {
   const userId = userSession.value?.sub
   if (!userId) {
-    return { verlof: null, aankomend: [] }
+    return { verlof: null, aankomend: [], lopend: 0 }
   }
 
   // Haal verlof op uit verlof_test
@@ -30,9 +30,16 @@ const { data } = await useAsyncData('dashboard-data', async () => {
       .order('start_datum', { ascending: true })
       .limit(3)
 
+  // Aantal aanvragen dat nog in behandeling is (status 'aangevraagd')
+  const lopendRes = await supabase
+      .from('verlofaanvragen')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'aangevraagd')
+
   return {
     verlof: verlofRes.data,
-    aankomend: aanvragenRes.data ?? []
+    aankomend: aanvragenRes.data ?? [],
+    lopend: lopendRes.count ?? 0
   }
 }, { watch: [userSession] })
 
@@ -90,7 +97,7 @@ const stats = computed(() => [
   { value: formatDays(remainingHours.value), label: 'Verlof resterend' },
   { value: formatDays(remainingHours.value != null ? usedHours.value : null), label: 'Verlof opgenomen' },
   { value: '0 dagen', label: 'Ziekgemeld' },
-  { value: '0', label: 'Aanvragen lopend' }
+  { value: String(data.value?.lopend ?? 0), label: 'Aanvragen in behandeling' }
 ])
 
 const formatDatum = (d: string) =>
