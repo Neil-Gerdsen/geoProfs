@@ -4,6 +4,6 @@ definePageMeta({ layout: 'sidebar' })
 
 <template>
   <header>
-    <h1 class="text-2xl font-bold">Verlof aanvragen</h1>
+    <h1 class="text-2xl font-bold">Ziekmelden</h1>
   </header>
 </template>
