@@ -11,7 +11,7 @@ const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefi
 const { data } = await useAsyncData('dashboard-data', async () => {
   const userId = userSession.value?.sub
   if (!userId) {
-    return { verlof: null, aankomend: [] }
+    return { verlof: null, aankomend: [], lopend: 0 }
   }
 
   // Haal verlof op uit verlof_test
@@ -30,30 +30,18 @@ const { data } = await useAsyncData('dashboard-data', async () => {
       .order('start_datum', { ascending: true })
       .limit(3)
 
+  // Aantal aanvragen dat nog in behandeling is (status 'aangevraagd')
+  const lopendRes = await supabase
+      .from('verlofaanvragen')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'aangevraagd')
+
   return {
     verlof: verlofRes.data,
-    aankomend: aanvragenRes.data ?? []
+    aankomend: aanvragenRes.data ?? [],
+    lopend: lopendRes.count ?? 0
   }
 }, { watch: [userSession] })
-
-
-// Koppelingen user -> rol via de SQL-functie get_user_roles (user_link + roles + auth.users)
-type UserRoleLink = { id: number, user_id: string, user_name: string | null, role_name: string | null }
-
-const userRoleLinks = ref<UserRoleLink[]>([])
-
-async function fetchUserRoleLinks() {
-  const { data, error } = await supabase.rpc('get_user_roles')
-
-  if (error) {
-    console.error('Koppelingen ophalen mislukt:', error)
-    return
-  }
-
-  userRoleLinks.value = (data ?? []) as unknown as UserRoleLink[]
-}
-
-onMounted(fetchUserRoleLinks)
 
 // 2. Gegevens verwerken
 // Verlof data uit verlof_test
@@ -90,7 +78,7 @@ const stats = computed(() => [
   { value: formatDays(remainingHours.value), label: 'Verlof resterend' },
   { value: formatDays(remainingHours.value != null ? usedHours.value : null), label: 'Verlof opgenomen' },
   { value: '0 dagen', label: 'Ziekgemeld' },
-  { value: '0', label: 'Aanvragen lopend' }
+  { value: String(data.value?.lopend ?? 0), label: 'Aanvragen in behandeling' }
 ])
 
 const formatDatum = (d: string) =>
@@ -208,29 +196,5 @@ const formatMoment = (d: string) =>
         </div>
       </section>
     </div>
-
-    <!-- Gebruikers en hun rol (user_link -> roles) -->
-    <UCard class="bg-black text-white rounded-2xl border-none">
-      <template #header>
-        <span class="text-sm font-semibold">Gebruikers en rollen</span>
-      </template>
-
-      <p v-if="!userRoleLinks.length" class="py-6 text-center text-xs text-neutral-500">
-        Geen koppelingen gevonden.
-      </p>
-
-      <ul v-else class="divide-y divide-neutral-900">
-        <li
-            v-for="link in userRoleLinks"
-            :key="link.id"
-            class="flex justify-between items-center py-3 text-xs"
-        >
-          <span class="font-mono text-neutral-400">
-            {{ fb(link.user_name, link.user_id) }}
-          </span>
-          <span class="font-semibold">{{ fb(link.role_name) }}</span>
-        </li>
-      </ul>
-    </UCard>
   </div>
 </template>
