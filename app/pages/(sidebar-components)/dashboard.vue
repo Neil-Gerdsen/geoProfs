@@ -43,25 +43,6 @@ const { data } = await useAsyncData('dashboard-data', async () => {
   }
 }, { watch: [userSession] })
 
-
-// Koppelingen user -> rol via de SQL-functie get_user_roles (user_link + roles + auth.users)
-type UserRoleLink = { id: number, user_id: string, user_name: string | null, role_name: string | null }
-
-const userRoleLinks = ref<UserRoleLink[]>([])
-
-async function fetchUserRoleLinks() {
-  const { data, error } = await supabase.rpc('get_user_roles')
-
-  if (error) {
-    console.error('Koppelingen ophalen mislukt:', error)
-    return
-  }
-
-  userRoleLinks.value = (data ?? []) as unknown as UserRoleLink[]
-}
-
-onMounted(fetchUserRoleLinks)
-
 // 2. Gegevens verwerken
 // Verlof data uit verlof_test
 const totalBudgetHours = 250 // Standaard jaartotaal
