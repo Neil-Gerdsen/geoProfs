@@ -3,7 +3,6 @@ import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date'
 
 definePageMeta({ layout: 'sidebar' })
 
-const supabase = useSupabaseClient()
 const toast = useToast()
 
 const start = shallowRef<CalendarDate | null>(null)
@@ -40,14 +39,17 @@ function validate(s: typeof state) {
 async function opslaan() {
   if (!start.value || !eind.value) return
 
-  const { error } = await supabase.from('verlofaanvragen').insert({
-    start_datum: start.value.toString(),
-    eind_datum: eind.value.toString(),
-    reden: state.reden.trim()
-  })
-
-  if (error) {
-    toast.add({ title: 'Opslaan mislukt', description: error.message, color: 'error' })
+  try {
+    await $fetch('/api/verlof/aanvraag',{ 
+      method: 'POST',
+      body: {
+        start_datum: start.value.toString(),
+        eind_datum: eind.value.toString(),
+        reden: state.reden
+        }
+    })
+  }catch (error: any) {
+    toast.add({title: 'opslaan mislukt', description: error?.data?.statusMessage ?? 'Er ging iets mis', color: 'error'})
     return
   }
 
