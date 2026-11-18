@@ -33,10 +33,9 @@ export default defineEventHandler(async (event) => {
 
         const { data, error } = await supabase.auth.admin.createUser({
             email: email.trim(),
-            password: password,
-            user_metadata: {
-                username
-            }
+            password,
+            email_confirm: true, // markeer e-mail direct als bevestigd
+            user_metadata: { username }
         });
 
         console.log('API 5. Supabase createUser uitgevoerd');
