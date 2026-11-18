@@ -1,49 +1,31 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'sidebar' })
 
-const supabase = useSupabaseClient()
-
 const toast = useToast()
 
 const toonBehandelde = ref(false)
 
-const { data: aanvragen, refresh } = await useAsyncData('verlofaanvragen', async () => {
-  const { data, error } = await supabase
-    .from('verlofaanvragen')
-    .select('id, start_datum, eind_datum, reden, status, aangevraagd_op')
-    .order('aangevraagd_op', { ascending: false })
-  if (error) throw error
-  return data
-})
-
-const columns = [
-  { id: 'periode', header: 'periode' },
-  { accessorKey: 'reden', header: 'Reden' },
-  { accessorKey: 'status', header: 'Status' },
-  { accessorKey: 'aangevraagd_op', header: 'Aangevraagd op' },
-  { id: 'acties', header: '' }
-]
+const {data: aanvragen, refresh} = await useFetch('/api/verlof/aanvraag', { default: () => [] })
 
 async function verwijder(id: number) {
   if (!confirm('Weet je zeker dat je deze aanvraag wilt verwijderen?')) return
 
-  const { data, error } = await supabase
-    .from('verlofaanvragen')
-    .delete()
-    .eq('id', id)
-    .select()
-
-  if (error) {
-    toast.add({ title: 'Verwijderen mislukt', description: error.message, color: 'error' })
+  try {
+    await $fetch(`/api/verlof/${id}`, { method: 'DELETE' })
+  } catch (error: any) {
+    toast.add({
+      title: 'verwijderen mislukt',
+      description: error?.data?.statusMessage ?? 'Er is iets misgegaan bij het verwijderen van de aanvraag.',
+      color: 'error'
+    })
     return
   }
 
-  if (!data?.length) {
-    toast.add({ title: 'Verwijderen niet toegestaan', description: 'Alleen open aanvragen kunnen worden verwijderd.', color: 'error' })
-    return
-  }
-
-  toast.add({ title: 'Aanvraag verwijderd', color: 'success' })
+  toast.add({
+    title: 'Aanvraag verwijderd',
+    description: 'De aanvraag is succesvol verwijderd.',
+    color: 'success'
+  })
   await refresh()
 }
 
@@ -64,8 +46,7 @@ const formatMoment = (d: string) =>
   })
 
 const gefilterd = computed(() =>
-  (aanvragen.value ?? []).filter(a => toonBehandelde.value ? a.status !== 'aangevraagd' : a.status === 'aangevraagd'
-  )
+  aanvragen.value.filter(a => toonBehandelde.value ? a.status !== 'aangevraagd' : a.status === 'aangevraagd')
 )
 </script>
 
