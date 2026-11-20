@@ -16,10 +16,10 @@ const { data } = await useAsyncData('dashboard-data', async () => {
 
   // Haal verlof op uit verlof_test
   const verlofRes = await supabase
-      .from('verlof_test')
-      .select('verlof_uren')
-      .eq('id', userId)
-      .maybeSingle()
+    .from('verlof_test')
+    .select('verlof_dagen')
+    .eq('id', userId)
+    .maybeSingle()
 
   return {
     verlof: verlofRes.data
@@ -47,29 +47,26 @@ onMounted(fetchUserRoleLinks)
 
 // 2. Gegevens verwerken
 // Verlof data uit verlof_test
-const totalBudgetHours = 250 // Standaard jaartotaal
-const hoursPerDay = 8 // Standaard werkdag
+const totalBudgetDays = 32 // Standaard jaartotaal
 
-// Uren omzetten naar werkdagen (afgerond op halve dagen)
-const toDays = (hours: number) => Math.round((hours / hoursPerDay) * 2) / 2
-const formatDays = (hours: number | null) => hours != null ? `${toDays(hours)} dagen` : '?'
+const formatDays = (days: number | null) => days != null ? `${Number(days.toFixed(2))} dagen` : '?'
 
-const remainingHours = computed(() => {
-  const uren = data.value?.verlof?.verlof_uren
-  return uren != null ? Number(uren) : null
+const remainingDays = computed(() => {
+  const dagen = data.value?.verlof?.verlof_dagen
+  return dagen != null ? Number(dagen) : null
 })
 
-// Opgenomen uren = budget - resterend
-const usedHours = computed(() => {
-  if (remainingHours.value != null) {
-    return Math.max(0, totalBudgetHours - remainingHours.value)
+// Opgenomen dagen = budget - resterend
+const usedDays = computed(() => {
+  if (remainingDays.value != null) {
+    return Math.max(0, totalBudgetDays - remainingDays.value)
   }
   return 0
 })
 
 // Kleur van de verlofbalk op basis van het resterende percentage
 const remainingColor = computed(() => {
-  const percentage = ((remainingHours.value ?? 0) / totalBudgetHours) * 100
+  const percentage = ((remainingDays.value ?? 0) / totalBudgetDays) * 100
   if (percentage > 66) return 'success'
   if (percentage >= 33) return 'warning'
   return 'error'
@@ -77,8 +74,8 @@ const remainingColor = computed(() => {
 
 // Stat cards bovenin
 const stats = computed(() => [
-  { value: formatDays(remainingHours.value), label: 'Verlof resterend' },
-  { value: formatDays(remainingHours.value != null ? usedHours.value : null), label: 'Verlof opgenomen' },
+  { value: formatDays(remainingDays.value), label: 'Verlof resterend' },
+  { value: formatDays(remainingDays.value != null ? usedDays.value : null), label: 'Verlof opgenomen' },
   { value: '0 dagen', label: 'Ziekgemeld' },
   { value: '0', label: 'Aanvragen lopend' }
 ])
@@ -106,7 +103,7 @@ const stats = computed(() => [
         <template #header>
           <div class="flex justify-between items-center">
             <span class="text-sm font-semibold">Verlofsaldo overzicht</span>
-            <span class="text-xs text-neutral-400">{{ formatDays(totalBudgetHours) }} budget</span>
+            <span class="text-xs text-neutral-400">{{ formatDays(totalBudgetDays) }} budget</span>
           </div>
         </template>
 
@@ -115,17 +112,12 @@ const stats = computed(() => [
           <div class="flex justify-between text-xs">
             <span>Gewoon verlof</span>
             <span class="text-neutral-400">
-              {{ remainingHours != null ? toDays(remainingHours) : '?' }} / {{ toDays(totalBudgetHours) }} dagen
+              {{ remainingDays != null ? Number(remainingDays.toFixed(2)) : '?' }} / {{ totalBudgetDays }} dagen
             </span>
           </div>
-          <UProgress
-              :model-value="remainingHours ?? 0"
-              :max="totalBudgetHours"
-              :color="remainingColor"
-              size="md"
-          />
+          <UProgress :model-value="remainingDays ?? 0" :max="totalBudgetDays" :color="remainingColor" size="md" />
           <p class="text-[11px] text-neutral-400">
-            {{ formatDays(remainingHours) }} beschikbaar
+            {{ formatDays(remainingDays) }} beschikbaar
           </p>
         </div>
 
@@ -165,11 +157,7 @@ const stats = computed(() => [
       </p>
 
       <ul v-else class="divide-y divide-neutral-900">
-        <li
-            v-for="link in userRoleLinks"
-            :key="link.id"
-            class="flex justify-between items-center py-3 text-xs"
-        >
+        <li v-for="link in userRoleLinks" :key="link.id" class="flex justify-between items-center py-3 text-xs">
           <span class="font-mono text-neutral-400">
             {{ fb(link.user_name, link.user_id) }}
           </span>

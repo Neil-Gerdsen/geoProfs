@@ -41,6 +41,12 @@ export default defineEventHandler(async (event) => {
     })
 
     if (error) {
+        if (error.code === '23P01') {
+            throw createError({ statusCode: 409, statusMessage: 'Je hebt in deze periode al verlof aangevraagd' })
+        }
+        if (error.code === 'P0001') {
+            throw createError({ statusCode: 400, statusMessage: error.message })
+        }
         console.error(error)
         throw createError({ statusCode: 500, statusMessage: 'Opslaan mislukt' })
     }
