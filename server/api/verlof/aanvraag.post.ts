@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 401, statusMessage: 'Niet ingelogd' })
     }
 
-    const { start_datum, eind_datum, reden } = await readBody(event)
+    const { start_datum, eind_datum, reden, beschrijving } = await readBody(event)
 
     if (!start_datum || !eind_datum || !reden?.trim()) {
         throw createError({ statusCode: 400, statusMessage: 'Vul alle velden in' })
@@ -27,8 +27,13 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'De startdatum kan niet in het verleden liggen' })
     }
 
-    if (reden.trim().length > 1000) {
-        throw createError({ statusCode: 400, statusMessage: 'Reden is te lang (max 1000 tekens)' })
+    if (reden.trim().length > 100) {
+        throw createError({ statusCode: 400, statusMessage: 'Reden is te lang (max 100 tekens)' })
+    }
+
+    const beschrijvingSchoon = typeof beschrijving === 'string' ? beschrijving.trim() : ''
+    if (beschrijvingSchoon.length > 2000) {
+        throw createError({ statusCode: 400, statusMessage: 'Beschrijving is te lang (max 2000 tekens)' })
     }
 
     const client = await serverSupabaseClient(event)
@@ -37,6 +42,7 @@ export default defineEventHandler(async (event) => {
         start_datum,
         eind_datum,
         reden: reden.trim(),
+        beschrijving: beschrijvingSchoon || null,
         status: 'aangevraagd'
     })
 
