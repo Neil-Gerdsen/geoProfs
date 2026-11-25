@@ -38,11 +38,11 @@ async function fetchUsers() {
   errorMessage.value = ''
 
   try {
-    const response = await $fetch<User[]>('/api/user/all')
+    const response = await $fetch<any[]>('/api/user/all')
 
     users.value = response.map(user => ({
       email: user.email,
-      username: user.username || ''
+      username: user.user_metadata?.display_name || ''
     }))
   } catch (error) {
     console.error('Fout bij ophalen gebruikers:', error)
@@ -73,9 +73,8 @@ onMounted(() => {
 
   <UCard class="bg-black text-white rounded-2xl border-none" :ui="{ body: 'p-6 sm:p-8' }">
     <p class="text-2xl font-bold">Teamaanwezigheid week {{weekNummer}}</p>
-    <UCard v-for="user in users" :key="user.username">
-      <p>{{ user.username || '-' }}</p>
-      <p>{{ user.email }}</p>
+    <UCard v-for="user in users" :key="user.email">
+      <p>{{ user.username || user.email }}</p>
     </UCard>
   </UCard>
 </template>
