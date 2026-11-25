@@ -107,7 +107,7 @@ const formatMoment = (d: string) =>
 
     <!-- Stat Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <UCard v-for="stat in stats" :key="stat.label" class="bg-black text-white rounded-2xl border-none">
+      <UCard v-for="stat in stats" :key="stat.label" class="bg-black text-white rounded-2xl border-none" :ui="{ body: 'p-6 sm:p-8' }">
         <p class="text-2xl font-semibold">{{ stat.value }}</p>
         <p class="text-xs text-neutral-400 mt-1">{{ stat.label }}</p>
       </UCard>
