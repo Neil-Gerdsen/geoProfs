@@ -72,10 +72,12 @@ onMounted(() => {
   </div>
 
   <UCard class="bg-black text-white rounded-2xl border-none" :ui="{ body: 'p-6 sm:p-8' }">
-    <p class="text-2xl font-bold">Teamaanwezigheid week {{weekNummer}}</p>
-    <UCard v-for="user in users" :key="user.email">
-      <p>{{ user.username || user.email }}</p>
-    </UCard>
+    <p class="text-2xl font-bold mb-4">Teamaanwezigheid week {{ weekNummer }}</p>
+    <div class="flex flex-col gap-4">
+      <UCard v-for="user in users" :key="user.email">
+        <p>{{ user.username || user.email }}</p>
+      </UCard>
+    </div>
   </UCard>
 </template>
 
