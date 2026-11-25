@@ -17,6 +17,12 @@ const supabase = useSupabaseClient()
 const userSession = useSupabaseUser()
 const { userName } = await useCurrentUser()
 
+function getInitials(naam: string) {
+  const parts = naam.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0][0]?.toUpperCase() || '?'
+  return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
+}
+
 const stats = computed(() => [
   { value: '4', label: 'Openstaande vragen' },
   { value: '2', label: 'Teamleden met verlof vandaag' },
@@ -27,6 +33,7 @@ const stats = computed(() => [
 interface User {
   email: string
   username?: string
+  userInitials?: string
 }
 
 const loading = ref(false)
@@ -42,7 +49,8 @@ async function fetchUsers() {
 
     users.value = response.map(user => ({
       email: user.email,
-      username: user.user_metadata?.display_name || ''
+      username: user.user_metadata?.display_name || '',
+      userInitials: getInitials(user.user_metadata?.display_name || user.email)
     }))
   } catch (error) {
     console.error('Fout bij ophalen gebruikers:', error)
@@ -75,7 +83,10 @@ onMounted(() => {
     <p class="text-2xl font-bold mb-4">Teamaanwezigheid week {{ weekNummer }}</p>
     <div class="flex flex-col gap-4">
       <UCard v-for="user in users" :key="user.email">
-        <p>{{ user.username || user.email }}</p>
+        <div class="flex items-center gap-3">
+          <UAvatar :text="user.userInitials" size="sm" class="bg-neutral-800 text-white font-mono font-medium" />
+          <p>{{ user.username || user.email }}</p>
+        </div>
       </UCard>
     </div>
   </UCard>
