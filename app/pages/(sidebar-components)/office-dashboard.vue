@@ -69,16 +69,29 @@ onMounted(() => {
     </UCard>
   </div>
 
-  <UCard class="bg-black text-white rounded-2xl border-none" :ui="{ body: 'p-6 sm:p-8' }">
-    <p class="text-2xl font-bold mb-4">Teamaanwezigheid week {{ weekNummer }}</p>
-    <div class="flex flex-col gap-4">
-      <UCard v-for="user in users" :key="user.email">
-        <div class="flex items-center gap-3">
-          <UAvatar :text="user.userInitials" size="sm" class="bg-neutral-800 text-white font-mono font-medium" />
-          <p>{{ user.username || user.email }}</p>
-        </div>
-      </UCard>
-    </div>
-  </UCard>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <UCard class="bg-black text-white rounded-2xl border-none" :ui="{ body: 'p-6 sm:p-8' }">
+      <p class="text-2xl font-bold mb-4">Teams</p>
+      <div class="flex flex-col gap-4">
+        <UCard v-for="n in 5" :key="n">
+          <div class="flex items-center gap-3">
+            <p>Team {{ n }}</p>
+          </div>
+        </UCard>
+      </div>
+    </UCard>
+    <UCard class="bg-black text-white rounded-2xl border-none" :ui="{ body: 'p-6 sm:p-8' }">
+      <p class="text-2xl font-bold mb-4">Manager aanwezigheid</p>
+      <div class="flex flex-col gap-4">
+        <UCard v-for="user in managers" :key="user.email">
+          <div class="flex items-center gap-3">
+            <UAvatar :text="user.userInitials" size="sm" class="bg-neutral-800 text-white font-mono font-medium" />
+            <p>{{ user.username || user.email }}</p>
+          </div>
+        </UCard>
+      </div>
+    </UCard>
+
+  </div>
 </template>
 
