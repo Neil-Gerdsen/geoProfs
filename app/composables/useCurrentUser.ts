@@ -22,6 +22,7 @@ export async function useCurrentUser() {
   // Naam komt uit de Supabase auth metadata (of default naar John Doe als mock)
   const userName = computed<string>(() => {
     return fb(
+        userSession.value?.user_metadata?.display_name ||
         userSession.value?.user_metadata?.full_name ||
         userSession.value?.user_metadata?.name ||
         userSession.value?.email?.split('@')[0],
