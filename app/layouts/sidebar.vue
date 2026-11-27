@@ -18,11 +18,8 @@ const navGroups: { navitems: NavigationMenuItem[] }[] = [
   {
     roles: ['Manager'],
     items: [
-      { label: 'Dashboard', icon: 'i-lucide-layout-dashboard', to: '/dashboard' },
-      { label: 'Team dashboard', icon: 'i-lucide-layout-grid', to: '/team-dashboard' },
-      { label: 'Verlofaanvragen', icon: 'i-lucide-inbox', to: '/verlof-inbox' },
-      { label: 'Planning', icon: 'i-lucide-calendar-range', to: '/planning' },
-      { label: 'Notificaties', icon: 'i-lucide-bell', to: '/notificaties' }
+      { label: 'Teams', icon: 'i-lucide-layout-dashboard', to: '/teams' },
+      { label: 'Office managers', icon: 'i-lucide-users', to: '/office-managers' }
     ]
   },
   {
