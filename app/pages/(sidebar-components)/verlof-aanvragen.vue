@@ -3,7 +3,6 @@ import { CalendarDate, today, getLocalTimeZone } from '@internationalized/date'
 
 definePageMeta({ layout: 'sidebar' })
 
-const supabase = useSupabaseClient()
 const toast = useToast()
 
 const start = shallowRef<CalendarDate | null>(null)
@@ -16,7 +15,8 @@ watch(start, (nieuw) => {
 })
 
 const state = reactive({
-  reden: ''
+  reden: '',
+  beschrijving: ''
 })
 
 const vandaag = today(getLocalTimeZone())
@@ -40,14 +40,18 @@ function validate(s: typeof state) {
 async function opslaan() {
   if (!start.value || !eind.value) return
 
-  const { error } = await supabase.from('verlofaanvragen').insert({
-    start_datum: start.value.toString(),
-    eind_datum: eind.value.toString(),
-    reden: state.reden.trim()
-  })
-
-  if (error) {
-    toast.add({ title: 'Opslaan mislukt', description: error.message, color: 'error' })
+  try {
+    await $fetch('/api/verlof/aanvraag', {
+      method: 'POST',
+      body: {
+        start_datum: start.value.toString(),
+        eind_datum: eind.value.toString(),
+        reden: state.reden,
+        beschrijving: state.beschrijving
+      }
+    })
+  } catch (error: any) {
+    toast.add({ title: 'opslaan mislukt', description: error?.data?.statusMessage ?? 'Er ging iets mis', color: 'error' })
     return
   }
 
@@ -55,6 +59,7 @@ async function opslaan() {
   start.value = null
   eind.value = null
   state.reden = ''
+  state.beschrijving = ''
 }
 </script>
 
@@ -86,7 +91,14 @@ async function opslaan() {
       </div>
 
       <UFormField label="Reden:" name="reden" required :ui="{ label: 'text-xs font-semibold text-black' }">
-        <UTextarea v-model="state.reden" :rows="8" class="w-full" placeholder="Geef een reden op voor je verlofaanvraag"
+        <UInput v-model="state.reden" :maxlength="100" class="w-full" placeholder="reden voor verlof"
+          :ui="{ base: 'bg-black !text-white rounded-2xl border-none placeholder:text-neutral-500' }" />
+      </UFormField>
+
+      <UFormField label="Beschrijving (optioneel):" name="beschrijving"
+        :ui="{ label: 'text-xs font-semibold text-black' }">
+        <UTextarea v-model="state.beschrijving" :rows="6" :maxlength="2000" class="w-full"
+          placeholder="Wil je meer uitleg geven? Vul het hier aan"
           :ui="{ base: 'bg-black !text-white rounded-2xl border-none placeholder:text-neutral-500' }" />
       </UFormField>
 
