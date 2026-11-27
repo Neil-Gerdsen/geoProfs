@@ -1,47 +1,22 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'sidebar' })
 
-const supabase = useSupabaseClient()
-const userSession = useSupabaseUser()
 const { userName } = await useCurrentUser()
 
-const fb = (val: any, fallbackVal: any = '?') => (val !== null && val !== undefined && val !== '' ? val : fallbackVal)
+// 1. Data ophalen via de API
+const { data: verlof } = await useFetch('/api/verlof/saldo')
+const { data: aanvragen } = await useFetch('/api/verlof/aanvraag', { default: () => [] })
 
-// 1. Data ophalen volgens database-schema
-const { data } = await useAsyncData('dashboard-data', async () => {
-  const userId = userSession.value?.sub
-  if (!userId) {
-    return { verlof: null, aankomend: [], lopend: 0 }
-  }
+// 3 eerstvolgende aanvragen die nog niet afgelopen zijn (lokale datum, YYYY-MM-DD)
+const vandaag = new Date().toLocaleDateString('sv-SE')
+const aankomend = computed(() =>
+  [...aanvragen.value]
+    .filter(a => a.eind_datum >= vandaag)
+    .sort((a, b) => a.start_datum.localeCompare(b.start_datum))
+    .slice(0, 3))
 
-  // Haal verlof op uit verlof_test
-  const verlofRes = await supabase
-    .from('verlof_test')
-    .select('verlof_dagen')
-    .eq('id', userId)
-    .maybeSingle()
-
-  // 3 eerstvolgende aanvragen die nog niet afgelopen zijn (lokale datum, YYYY-MM-DD)
-  const vandaag = new Date().toLocaleDateString('sv-SE')
-  const aanvragenRes = await supabase
-      .from('verlofaanvragen')
-      .select('id, start_datum, eind_datum, reden, status, aangevraagd_op')
-      .gte('eind_datum', vandaag)
-      .order('start_datum', { ascending: true })
-      .limit(3)
-
-  // Aantal aanvragen dat nog in behandeling is (status 'aangevraagd')
-  const lopendRes = await supabase
-      .from('verlofaanvragen')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'aangevraagd')
-
-  return {
-    verlof: verlofRes.data,
-    aankomend: aanvragenRes.data ?? [],
-    lopend: lopendRes.count ?? 0
-  }
-}, { watch: [userSession] })
+// Aantal aanvragen dat nog in behandeling is
+const lopend = computed(() => aanvragen.value.filter(a => a.status === 'aangevraagd').length)
 
 // 2. Gegevens verwerken
 // Verlof data uit verlof_test
@@ -50,7 +25,7 @@ const totalBudgetDays = 32 // Standaard jaartotaal
 const formatDays = (days: number | null) => days != null ? `${Number(days.toFixed(2))} dagen` : '?'
 
 const remainingDays = computed(() => {
-  const dagen = data.value?.verlof?.verlof_dagen
+  const dagen = verlof.value?.verlof_dagen
   return dagen != null ? Number(dagen) : null
 })
 
@@ -75,7 +50,7 @@ const stats = computed(() => [
   { value: formatDays(remainingDays.value), label: 'Verlof resterend' },
   { value: formatDays(remainingDays.value != null ? usedDays.value : null), label: 'Verlof opgenomen' },
   { value: '0 dagen', label: 'Ziekgemeld' },
-  { value: String(data.value?.lopend ?? 0), label: 'Aanvragen in behandeling' }
+  { value: String(lopend.value), label: 'Aanvragen in behandeling' }
 ])
 
 const formatDatum = (d: string) =>
@@ -168,7 +143,7 @@ const formatMoment = (d: string) =>
 
         <div class="space-y-3">
 
-          <UCard v-for="aanvraag in data?.aankomend ?? []" :key="aanvraag.id" class="bg-black text-white rounded-2xl border-none"
+          <UCard v-for="aanvraag in aankomend" :key="aanvraag.id" class="bg-black text-white rounded-2xl border-none"
             :ui="{ body: 'px-6 py-4 sm:px-6 sm:py-4' }">
             <div class="grid grid-cols-[2fr_1.5fr_1fr_2fr] gap-4 items-center text-xs">
               <span>
@@ -180,7 +155,7 @@ const formatMoment = (d: string) =>
             </div>
           </UCard>
 
-          <UCard v-if="!data?.aankomend?.length" class="bg-black text-white rounded-2xl border-none">
+          <UCard v-if="!aankomend.length" class="bg-black text-white rounded-2xl border-none">
             <p class="py-6 text-center text-xs text-neutral-500">
               Geen aankomende verlofaanvragen.
             </p>
